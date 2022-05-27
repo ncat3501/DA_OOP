@@ -1,12 +1,32 @@
-#pragma once
+﻿#pragma once
 
 #include <iostream>
+#include <vector>
 using namespace std;
 
 
-struct Date {
+
+class Date {
+private:
 	int year;
+	int month;
+public:
+	Date();
+	Date(int year, int month);
+
+	int getYear();
+	void setYear(int year);
+	int getMonth();
+	void setMonth(int month);
+
+	friend ostream& operator<<(ostream& out, Date& date);
+	Date& operator=(const Date& date);
+
+	bool isEqual(Date& d);
+	void sangThang();
 };
+
+class SoTietKiem;
 
 class ThuNhap {
 private:
@@ -18,17 +38,19 @@ private:
 	// data
 	double quyVoChong = 0;
 	double quyChung = 0;
+	Date date;
 
 	//// singleton
-	//static ThuNhap* thuNhap;
-	//ThuNhap();
-	//ThuNhap& operator=(const ThuNhap& thuNhap);
+	ThuNhap();
+	static ThuNhap* _thuNhap;
+
 public:
 	// constructors
-	ThuNhap();
-	ThuNhap(double luongVo, double luongChong, double luongChung, double chiTieu);
-	ThuNhap(const ThuNhap& thuNhap);
 	~ThuNhap();
+
+	static ThuNhap* getInstance();
+	ThuNhap& operator=(const ThuNhap& thuNhap) = delete;
+
 
 	// getter setter
 	double getLuongVo();
@@ -44,6 +66,9 @@ public:
 	void setQuyVoChong(double quyVoChong);
 	double getQuyChung();
 	void setQuyChung(double quyChung);
+	Date getDate();
+	void setDate(Date& date);
+
 
 	// operators overloading
 	friend ostream& operator<<(ostream& out, ThuNhap& thuNhap);
@@ -53,19 +78,32 @@ public:
 	void guiTietKiem();
 	void sangThangTiepTheo();
 
-	static void Menu();
+	void Menu();
 };
 
 
 class SoTietKiem {
-private:
-	double tienGui;
 public:
-	static void choose(ThuNhap& tn);
+	static double tienGui;
+	static double laiSuat;
+	static Date ngayDaoHan;
+public:
+	SoTietKiem();
+
+	double getTienGui();
+	void setTienGui(double tienGui);
+	double getLaiSuat();
+	void setLaiSuat(double laiSuat);
+	Date getNgayDaoHan();
+	void setNgayDaoHan(Date& ngayDaoHan);
+
+	friend ostream& operator<<(ostream& out, const SoTietKiem& s);
+
+	static SoTietKiem* chon(ThuNhap& thuNhap);
+	void checkDaoHan(ThuNhap& thuNhap);
+	void print();
 };
 
+class TienNo {
 
-class Menu {
-public:
-	static void Create();
 };
