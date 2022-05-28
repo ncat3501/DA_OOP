@@ -1,9 +1,9 @@
 ﻿#pragma once
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 using namespace std;
-
 
 
 class Date {
@@ -40,7 +40,7 @@ private:
 	double quyChung = 0;
 	Date date;
 
-	//// singleton
+	// singleton
 	ThuNhap();
 	static ThuNhap* _thuNhap;
 
@@ -76,6 +76,7 @@ public:
 
 	// methods
 	void guiTietKiem();
+	void guiNoNganHang();
 	void sangThangTiepTheo();
 
 	void Menu();
@@ -83,10 +84,13 @@ public:
 
 
 class SoTietKiem {
-public:
+private:
 	static double tienGui;
 	static double laiSuat;
+	static Date ngayGui;
 	static Date ngayDaoHan;
+	static int soluong;
+	int stt;
 public:
 	SoTietKiem();
 
@@ -94,6 +98,8 @@ public:
 	void setTienGui(double tienGui);
 	double getLaiSuat();
 	void setLaiSuat(double laiSuat);
+	Date getNgayGui();
+	void setNgayGui(Date& ngayGui);
 	Date getNgayDaoHan();
 	void setNgayDaoHan(Date& ngayDaoHan);
 
@@ -101,9 +107,33 @@ public:
 
 	static SoTietKiem* chon(ThuNhap& thuNhap);
 	void checkDaoHan(ThuNhap& thuNhap);
-	void print();
+
 };
 
 class TienNo {
+private:
+	static double tienNo;
+	static double laiSuat;
+	static Date ngayGui;
+	static Date ngayDaoHan;
+	static int soluong;
+	int stt;
+public:
+	TienNo();
+
+	double getTienNo();
+	void setTienNo(double tienNo);
+	double getLaiSuat();
+	void setLaiSuat(double laiSuat);
+	Date getNgayGui();
+	void setNgayGui(Date& ngayGui);
+	Date getNgayDaoHan();
+	void setNgayDaoHan(Date& ngayDaoHan);
+
+	friend ostream& operator<<(ostream& out, const TienNo& n);
+
+	static TienNo* chon(ThuNhap& thuNhap);
+	void checkDaoHan(ThuNhap& thuNhap);
+	void thayLaiSuat(int stt);
 
 };

@@ -1,6 +1,7 @@
 #include "Luong.h"
 
 vector<SoTietKiem*> stk;
+vector<TienNo*> no;
 
 
 ostream& operator<<(ostream& out, Date& date)
@@ -127,7 +128,10 @@ Date::Date(int year, int month)
 
 double SoTietKiem::tienGui = 0;
 double SoTietKiem::laiSuat = 0;
+Date SoTietKiem::ngayGui;
 Date SoTietKiem::ngayDaoHan;
+int SoTietKiem::soluong = 0;
+
 SoTietKiem* SoTietKiem::chon(ThuNhap& thuNhap)
 {
 	SoTietKiem* s = new SoTietKiem;
@@ -141,6 +145,7 @@ SoTietKiem* SoTietKiem::chon(ThuNhap& thuNhap)
 	}
 	thuNhap.setQuyVoChong(thuNhap.getQuyVoChong() - s->tienGui);
 
+	s->ngayGui = thuNhap.getDate();
 	s->ngayDaoHan = thuNhap.getDate();
 
 	int choose;
@@ -173,26 +178,34 @@ SoTietKiem* SoTietKiem::chon(ThuNhap& thuNhap)
 			s->tienGui *= (1 + s->laiSuat / 100);
 		}
 		break;
-	default:
-		break;
 	}
 
 	return s;
-
 }
 
 void SoTietKiem::checkDaoHan(ThuNhap& thuNhap)
 {
-	if (thuNhap.getDate().isEqual(ngayDaoHan))
+	if (thuNhap.getDate().isEqual(ngayDaoHan)) {
 		thuNhap.setQuyVoChong(thuNhap.getQuyVoChong() + tienGui);
+		for (int i = 0; i < stk.size(); i++) {
+			if (stk[i] == this) stk.erase(stk.begin() + i);
+		}
+	}
+
 }
 
 SoTietKiem::SoTietKiem()
 {
+	soluong++;
+	stt = soluong;
 }
 
 double SoTietKiem::getTienGui() {
 	return this->tienGui;
+}
+
+void SoTietKiem::setNgayGui(Date& ngayGui)
+{
 }
 
 void SoTietKiem::setTienGui(double tienGui) {
@@ -216,20 +229,13 @@ void SoTietKiem::setNgayDaoHan(Date& ngayDaoHan) {
 }
 
 ostream& operator<<(ostream& out, const SoTietKiem& s) {
-	out << "STK" << endl;
-	out << "Tien gui: " << s.tienGui << endl;
+	out << "STK " << s.stt << endl;
+	out << "Tien se nhan duoc vao ngay dao han: " << s.tienGui << endl;
 	out << "Lai suat: " << s.laiSuat << endl;
+	out << "Ngay gui: " << s.ngayGui << endl;
 	out << "Ngay dao han: " << s.ngayDaoHan << endl;
 
 	return out;
-}
-
-void SoTietKiem::print() {
-	cout << "STK" << endl;
-	cout << "Tien gui: " << this->tienGui << endl;
-	cout << "Lai suat: " << this->laiSuat << endl;
-	cout << "Ngay dao han: " << this->ngayDaoHan << endl;
-
 }
 
 
@@ -321,11 +327,7 @@ void ThuNhap::setQuyChung(double quyChung)
 
 void ThuNhap::guiTietKiem()
 {
-	cout << "gui tiet kiem" << endl;
-	SoTietKiem* s = new SoTietKiem;
-	s->chon(*this);
-	//this->add(s);
-	stk.push_back(s);
+	stk.push_back(SoTietKiem::chon(*this));
 }
 
 void ThuNhap::sangThangTiepTheo()
@@ -354,6 +356,11 @@ void ThuNhap::sangThangTiepTheo()
 
 }
 
+void ThuNhap::guiNoNganHang()
+{
+	no.push_back(TienNo::chon(*this));
+}
+
 Date ThuNhap::getDate()
 {
 	return Date(this->date.getYear(), this->date.getMonth());
@@ -363,12 +370,12 @@ void ThuNhap::Menu()
 {
 	int choose = -1;
 	do {
-		cout << "1. In ra thunhap" << endl;
-		cout << "2. Gui tiet kiem" << endl;
-		cout << "3. Sang thang" << endl;
-		cout << "4. Thay doi luong" << endl;
-		cout << "5. In ra STK" << endl;
-		cout << "6. Ket thuc" << endl;
+		cout << "1. In ra thu nhap" << endl;
+		cout << "2. Thay doi luong" << endl;
+		cout << "3. So tiet kiem" << endl;
+		cout << "4. Khoan no NH" << endl;
+		cout << "5. Sang thang" << endl;
+		cout << "0. Ket thuc" << endl;
 		cout << "Nhap lua chon: ";
 		cin >> choose;
 		switch (choose)
@@ -378,29 +385,73 @@ void ThuNhap::Menu()
 			cout << *this;
 			break;
 		case 2:
-			cout << "Gui tiet kiem" << endl;
-			this->guiTietKiem();
-			break;
-		case 3:
-			cout << "Sang thang" << endl;
-			this->sangThangTiepTheo();
-			break;
-		case 4:
 			cout << "Thay doi luong" << endl;
 			cin >> *this;
 			break;
-		case 5:
-			for (int i = 0; i < stk.size(); i++) {
-				stk[i]->print();
+
+		case 3:
+			cout << "1. Gui tiet kiem" << endl;
+			cout << "2. In ra danh sach STK" << endl;
+			cout << "Nhap lua chon: ";
+			cin >> choose;
+			switch (choose)
+			{
+			case 1:
+				cout << "Da chon gui tiet kiem" << endl;
+				this->guiTietKiem();
+				break;
+			case 2:
+				cout << "Da chon in ra danh sach STK" << endl;
+				for (int i = 0; i < stk.size(); i++) {
+					cout << *stk[i];
+				}
+				break;
+			default:
+				break;
 			}
 			break;
-		case 6:
+		case 4:
+			cout << "1. Nhap no NH" << endl;
+			cout << "2. Thay doi lai suat no NH" << endl;
+			cout << "3. In ra danh sach no NH" << endl;
+			cout << "Moi nhap: ";
+			cin >> choose;
+			switch (choose)
+			{
+			case 1:
+				cout << "Da chon nhap no NH" << endl;
+				this->guiNoNganHang();
+				break;
+			case 2:
+				cout << "Da chon thay doi lai suat no NH" << endl;
+				cout << "Nhap STT cua khoan no ma ban muon thay doi: ";
+				int stt;
+				cin >> stt;
+				for (int i = 0; i < no.size(); i++) {
+					no[i]->thayLaiSuat(stt);
+				}
+			case 3:
+				cout << "Da chon in ra danh sach no NH" << endl;
+				for (int i = 0; i < no.size(); i++) {
+					cout << *no[i];
+				}
+				break;
+			default:
+				break;
+			}
+			break;
+		case 5:
+			cout << "Sang thang" << endl;
+			this->sangThangTiepTheo();
+			break;
+		case 0:
+			// do nothing
 			break;
 		default:
 			break;
 		}
 	}
-	while (choose != 6);
+	while (choose != 0);
 
 }
 
@@ -410,3 +461,110 @@ void ThuNhap::setDate(Date& date)
 	this->date.setMonth(date.getMonth());
 }
 
+double TienNo::tienNo = 0;
+double TienNo::laiSuat = 0;
+Date TienNo::ngayGui;
+Date TienNo::ngayDaoHan;
+int TienNo::soluong = 0;
+TienNo::TienNo()
+{
+	this->soluong++;
+	stt = soluong;
+}
+
+double TienNo::getTienNo()
+{
+	return this->tienNo;
+}
+
+void TienNo::setTienNo(double tienNo)
+{
+	this->tienNo = tienNo;
+}
+
+double TienNo::getLaiSuat()
+{
+	return this->laiSuat;
+}
+
+void TienNo::setLaiSuat(double laiSuat)
+{
+	this->laiSuat = laiSuat;
+}
+
+Date TienNo::getNgayGui()
+{
+	return this->ngayGui;
+}
+
+void TienNo::setNgayGui(Date& ngayGui)
+{
+	this->ngayGui = ngayGui;
+}
+
+Date TienNo::getNgayDaoHan() {
+	return this->ngayDaoHan;
+}
+
+void TienNo::setNgayDaoHan(Date& ngayDaoHan) {
+	this->ngayDaoHan = ngayDaoHan;
+}
+
+ostream& operator<<(ostream& out, const TienNo& n) {
+	out << "Tien no " << n.stt << endl;
+	out << "So tien du kien phai tra vao ngay dao han: " << n.tienNo * (1 + n.laiSuat) << endl;
+	out << "Lai suat NH: " << n.laiSuat << endl;
+	out << "Ngay bat dau: " << n.ngayGui << endl;
+	out << "Ngay dao han: " << n.ngayDaoHan << endl;
+
+	return out;
+}
+
+TienNo* TienNo::chon(ThuNhap& thuNhap)
+{
+	TienNo* n = new TienNo;
+	cout << "Ban dang co: " << thuNhap.getQuyVoChong() << endl;
+	cout << "Ban co khoan no NH bao nhieu tien? Hay nhap: ";
+	cin >> n->tienNo;
+
+	cout << "Lai suat NH cua khoan no nay la bao nhieu? Hay nhap: ";
+	cin >> n->laiSuat;
+	n->laiSuat / 100;
+
+	n->ngayGui = thuNhap.getDate();
+	n->ngayDaoHan = thuNhap.getDate();
+
+	int due;
+	cout << "Khoan no cua ban co han bao nhieu thang? Hay nhap: ";
+	cin >> due;
+
+	while (due <= 0) {
+		cout << "Lua chon khong hop le. Hay nhap lai: ";
+		cin >> due;
+	}
+
+	for (int i = 0; i < due; i++) {
+		n->ngayDaoHan.sangThang();
+	}
+
+	return n;
+}
+
+void TienNo::checkDaoHan(ThuNhap& thuNhap)
+{
+	if (thuNhap.getDate().isEqual(ngayDaoHan)) {
+		thuNhap.setQuyVoChong(thuNhap.getQuyVoChong() - tienNo * laiSuat);
+		for (int i = 0; i < no.size(); i++) {
+			if (no[i] == this) no.erase(no.begin() + i);
+		}
+	}
+}
+
+void TienNo::thayLaiSuat(int stt) {
+	if (this->stt = stt) {
+		cout << "Nhap lai suat NH ma ban muon thay doi: ";
+		double ls;
+		cin >> ls;
+		setLaiSuat(ls);
+	}
+}
