@@ -3,136 +3,169 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <stdexcept>
 using namespace std;
 
+// class pre-definition to initialize inside other classes
+class Date;
+class ThuNhap;
+class SoTietKiem;
+class TienNo;
 
 class Date {
 private:
 	int year;
 	int month;
 public:
+	// constructor
 	Date();
 	Date(int year, int month);
 
+	// getter setter
 	int getYear();
-	void setYear(int year);
+	void setYear(int value);
 	int getMonth();
-	void setMonth(int month);
+	void setMonth(int value);
 
+	// operators overloading
 	friend ostream& operator<<(ostream& out, Date& date);
 	Date& operator=(const Date& date);
 
+	// methods
 	bool isEqual(Date& d);
 	void sangThang();
 };
 
-class SoTietKiem;
-
 class ThuNhap {
 private:
-	// input
+
+	// INPUT 
+		// salaries
 	double luongVo;
 	double luongChong;
 	double luongChung;
-	double chiTieu;
-	// data
+		// costs
+	double sinhHoat;
+	double chiPhiKhac;
+	// SAVINGS 
 	double quyVoChong = 0;
 	double quyChung = 0;
-	Date date;
 
-	// singleton
+	Date* date;
+
+	// SINGLETON
 	ThuNhap();
 	static ThuNhap* _thuNhap;
 
 public:
-	// constructors
+	// DESTRUCTOR
 	~ThuNhap();
 
+	// SINGLETON INITIALIZE METHOD
 	static ThuNhap* getInstance();
 	ThuNhap& operator=(const ThuNhap& thuNhap) = delete;
 
 
-	// getter setter
+	// GETTER & SETTER 
+		// salaries
 	double getLuongVo();
-	void setLuongVo(double luongVo);
+	void setLuongVo(double value);
 	double getLuongChong();
-	void setLuongChong(double luongChong);
+	void setLuongChong(double value);
 	double getLuongChung();
-	void setLuongChung(double luongChung);
-	double getChiTieu();
-	void setChiTieu(double chiTieu);
-
+	void setLuongChung(double value);
+	double getSinhHoat();
+	void setSinhHoat(double value);
+	double getChiPhiKhac();
+	void setChiPhiKhac(double value);
+		// savings
 	double getQuyVoChong();
-	void setQuyVoChong(double quyVoChong);
+	void setQuyVoChong(double value);
 	double getQuyChung();
-	void setQuyChung(double quyChung);
-	Date getDate();
-	void setDate(Date& date);
+	void setQuyChung(double value);
+
+	Date* getDate();
+	void setDate(Date& value);
 
 
-	// operators overloading
+	// OPERATORS OVERLOADING
 	friend ostream& operator<<(ostream& out, ThuNhap& thuNhap);
 	friend istream& operator>>(istream& in, ThuNhap& thuNhap);
 
-	// methods
+	// METHODS
 	void guiTietKiem();
 	void guiNoNganHang();
 	void sangThangTiepTheo();
+	void printToCSV(ofstream& file);
+	void duDoanTraNo();
 
-	void Menu();
+	void Menu(ofstream& file);
 };
-
 
 class SoTietKiem {
 private:
-	static double tienGui;
-	static double laiSuat;
-	static Date ngayGui;
-	static Date ngayDaoHan;
+	double tienGui = 0;
+	double laiSuat = 0;
+	Date* ngayGui;
+	Date* ngayDaoHan;
 	static int soluong;
 	int stt;
 public:
+	// constructor destructor
 	SoTietKiem();
+	~SoTietKiem();
 
+	// getter setter
 	double getTienGui();
-	void setTienGui(double tienGui);
+	void setTienGui(double value);
 	double getLaiSuat();
-	void setLaiSuat(double laiSuat);
-	Date getNgayGui();
-	void setNgayGui(Date& ngayGui);
-	Date getNgayDaoHan();
-	void setNgayDaoHan(Date& ngayDaoHan);
+	void setLaiSuat(double value);
+	Date* getNgayGui();
+	void setNgayGui(Date& value);
+	Date* getNgayDaoHan();
+	void setNgayDaoHan(Date& value);
 
+	// operators overloading
 	friend ostream& operator<<(ostream& out, const SoTietKiem& s);
 
-	static SoTietKiem* chon(ThuNhap& thuNhap);
+	// methods
+	SoTietKiem* chon(ThuNhap& thuNhap);
 	void checkDaoHan(ThuNhap& thuNhap);
 
 };
 
 class TienNo {
 private:
-	static double tienNo;
-	static double laiSuat;
-	static Date ngayGui;
-	static Date ngayDaoHan;
+	double tienNo = 0;
+	double laiSuat = 0;
+	int due;
+	Date* ngayGui;
+	Date* ngayDaoHan;
 	static int soluong;
 	int stt;
 public:
+	// constructor
 	TienNo();
+	~TienNo();
 
+	// getter setter
 	double getTienNo();
-	void setTienNo(double tienNo);
+	void setTienNo(double value);
 	double getLaiSuat();
-	void setLaiSuat(double laiSuat);
-	Date getNgayGui();
-	void setNgayGui(Date& ngayGui);
-	Date getNgayDaoHan();
-	void setNgayDaoHan(Date& ngayDaoHan);
+	void setLaiSuat(double value);
+	int getDue();
+	void setDue(int value);
+	Date* getNgayGui();
+	void setNgayGui(Date& value);
+	Date* getNgayDaoHan();
+	void setNgayDaoHan(Date& value);
+	int getSTT();
 
+	// operators overloading
 	friend ostream& operator<<(ostream& out, const TienNo& n);
 
-	static TienNo* chon(ThuNhap& thuNhap);
+	// methods
+	TienNo* chon(ThuNhap& thuNhap);
 	void checkDaoHan(ThuNhap& thuNhap);
 	void thayLaiSuat(int stt);
 
