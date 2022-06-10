@@ -2,12 +2,8 @@
 
 int main()
 {
-	ofstream myfile;
-	//// insert mode
-		//myfile.open("data.csv", std::ios::out | std::ios::app);
-	
-	// overwrite mode
-		myfile.open("data.csv");
+	fstream myfile;
+	myfile.open(_FILE_NAME, std::ios::in | std::ios::out);
 
 	ThuNhap* tn1 = ThuNhap::getInstance();
 
@@ -15,9 +11,9 @@ int main()
 	{
 		tn1->Menu(myfile);
 	}
-	catch (invalid_argument& e)
+	catch (std::invalid_argument& e)
 	{
-		cerr << e.what() << endl;
+		std::cerr << e.what() << endl;
 		return -1;
 	}
 

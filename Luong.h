@@ -1,17 +1,23 @@
 ﻿#pragma once
-
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <stdexcept>
-using namespace std;
 
-// class pre-definition to initialize inside other classes
-class Date;
-class ThuNhap;
-class SoTietKiem;
-class TienNo;
+using std::cout;
+using std::cin;
+using std::endl;
+using std::vector;
+using std::string;
+using std::ostream;
+using std::istream;
+using std::fstream;
 
+// constant variables
+const string _FILE_NAME = "data.csv";
+
+// class declarations
 class Date {
 private:
 	int year;
@@ -33,6 +39,7 @@ public:
 
 	// methods
 	bool isEqual(Date& d);
+	void getDateFromString(string& str);
 	void sangThang();
 };
 
@@ -96,10 +103,12 @@ public:
 	void guiTietKiem();
 	void guiNoNganHang();
 	void sangThangTiepTheo();
-	void printToCSV(ofstream& file);
+	void printToCSV(fstream& file);
 	void duDoanTraNo();
+	void initializeColumnName(fstream& file);
+	void readInputFromCSV(fstream& file);
 
-	void Menu(ofstream& file);
+	void Menu(fstream& file);
 };
 
 class SoTietKiem {

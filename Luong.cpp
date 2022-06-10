@@ -30,6 +30,20 @@ bool Date::isEqual(Date& d)
 	return false;
 }
 
+void Date::getDateFromString(string& str)
+{
+	string delim = "/";
+
+	size_t pos = str.find(delim);
+	int temp_month = std::stod(str.substr(0, pos));
+	this->setMonth(temp_month);
+	//cout << std::stod(str.substr(0, pos)) << endl;
+	str.erase(0, pos + delim.length());
+	int year = std::stod(str);
+	this->setYear(year);
+
+}
+
 Date& Date::operator=(const Date& date)
 {
 	this->month = date.month;
@@ -194,19 +208,19 @@ void ThuNhap::setDate(Date& value)
 
 ostream& operator<<(ostream& out, ThuNhap& thuNhap)
 {
-	out << "====================" << endl;
-	out << "===== Thu Nhap =====" << endl;
-	out << "==== Tien quy ====" << endl;
+	out << "=====================================" << endl;
+	out << "======= THU NHAP THANG " << *thuNhap.date << " =======" << endl;
+	out << "======= Tien quy =======" << endl;
 	out << "	Quy vo chong: " << thuNhap.getQuyVoChong() << endl;
 	out << "	Quy chung: " << thuNhap.getQuyChung() << endl;
-	out << "==== Tien luong: " << endl;
+	out << "======= Tien luong: " << endl;
 	out << "	Luong chong: " << thuNhap.getLuongChong() << endl;
 	out << "	Luong vo: " << thuNhap.getLuongVo() << endl;
 	out << "	Luong chung: " << thuNhap.getLuongChung() << endl;
-	out << "==== Chi tieu:" << endl;
+	out << "======= Chi tieu:" << endl;
 	out << "	Phi sinh hoat: " << thuNhap.getSinhHoat() << endl;
 	out << "	Phi khac: " << thuNhap.getChiPhiKhac() << endl;
-	out << "====================" << endl;
+	out << "=====================================" << endl;
 
 	return out;
 }
@@ -265,18 +279,25 @@ void ThuNhap::sangThangTiepTheo()
 	}
 
 	if (quyVoChong < 0)
-		throw invalid_argument("==============\nWARNING: Quy bi am. Ban da pha san.\n==============");
+		throw std::invalid_argument("==============\nWARNING: Quy bi am. Ban da pha san.\n==============");
 
 	date->sangThang();
+
+	// kiem tra dao han cua stk
 	if (stk.size() > 0) {
 		for (size_t i = 0; i < stk.size(); i++) {
 			stk[i]->checkDaoHan(*this);
 		}
 	}
 
+	// kiem tra ngay dao han cua no
+	for (size_t i = 0; i < no.size(); i++) {
+		no[i]->setDue(no[i]->getDue() - 1);
+		no[i]->checkDaoHan(*this);
+	}
 }
 
-void ThuNhap::printToCSV(ofstream& file)
+void ThuNhap::printToCSV(fstream& file)
 {
 	double thuchi = 
 		this->luongChong 
@@ -335,6 +356,83 @@ void ThuNhap::duDoanTraNo()
 
 }
 
+void ThuNhap::initializeColumnName(fstream& file)
+{
+	// Initializes columns titles
+	file <<
+		"THANG,LUONG CHONG,LUONG VO,LUONG CHUNG,PHI SINH HOAT,CHI PHI KHAC,QUY VO CHONG,QUY CHUNG,TINH HINH THU/CHI THANG NAY,\n";
+}
+
+void ThuNhap::readInputFromCSV(fstream& file)
+{
+	// neu file khong co du lieu truoc do thi se init 
+	file.seekg(0, std::ios::end);
+	if (file.tellg() == 0) {
+		cout << "Khong co file du lieu nao duoc tim thay. Dang tao 1 file du lieu moi..." << endl;
+		initializeColumnName(file);
+		cout << "Da tao thanh cong." << endl; // 🤡
+	}
+
+	// doc du lieu tu file CSV
+	vector<vector<string>> content;
+	vector<string> row;
+	string line, word;
+
+	fstream fin(_FILE_NAME, std::ios::in);
+	if (file.is_open())	{
+
+		while (getline(fin, line))	{
+
+			row.clear();
+
+			std::stringstream str(line);
+
+			while (getline(str, word, ',')) {
+				row.push_back(word);
+			}
+				
+			content.push_back(row);
+		}
+	}
+	else cout << "Khong the doc file du lieu tren may.\n";
+
+	// check if newest data is a valid number or not
+	// if it only has column title, then do nothing
+	double lc = std::stof(content[content.size()-1][1]);
+	if (lc > 0) {
+		cout << "Co file du lieu tu truoc, dang doc du lieu..." << endl;
+		// thang, luong chong, luong vo, luong chung, phi sinh hoat, phi khac, quy vo chong, quy chung
+		Date* read_d = new Date;
+		read_d->getDateFromString(content[content.size() - 1][0]);
+		this->date = read_d;
+
+		double read_lc = std::stof(content[content.size() - 1][1]);
+		this->luongChong = read_lc;
+
+		double read_lv = std::stof(content[content.size() - 1][2]);
+		this->luongVo = read_lv;
+
+		double read_lch = std::stof(content[content.size() - 1][3]);
+		this->luongChung = read_lch;
+
+		double read_psh = std::stof(content[content.size() - 1][4]);
+		this->sinhHoat = read_psh;
+
+		double read_pk = std::stof(content[content.size() - 1][5]);
+		this->chiPhiKhac = read_pk;
+
+		double read_qvc = std::stof(content[content.size() - 1][6]);
+		this->quyVoChong = read_qvc;
+
+		double read_qch = std::stof(content[content.size() - 1][7]);
+		this->quyChung = read_qch;
+
+		cout << "Da cap nhat du lieu." << endl;
+	}
+		
+}
+
+
 void ThuNhap::guiNoNganHang()
 {
 	TienNo* n = new TienNo;
@@ -347,11 +445,15 @@ Date* ThuNhap::getDate()
 	return new Date(this->date->getYear(), this->date->getMonth());
 }
 
-void ThuNhap::Menu(ofstream& file)
+void ThuNhap::Menu(fstream& file)
 {
-	// Initializes columns titles
-	file <<
-		"THANG,LUONG CHONG,LUONG VO,LUONG CHUNG,PHI SINH HOAT,CHI PHI KHAC,QUY VO CHONG,QUY CHUNG,TINH HINH THU/CHI THANG NAY,\n";
+	// check if file is opened correctly
+	if (!file.is_open()) return;
+
+	// check if file had previous data or not
+	// if yes, read the data and input into ThuNhap
+	// if no, skip this method
+	readInputFromCSV(file);
 
 	// Creates a loop menu in CMD for user
 	int choose = -1;
@@ -465,21 +567,20 @@ void ThuNhap::Menu(ofstream& file)
 int SoTietKiem::soluong = 0;
 SoTietKiem* SoTietKiem::chon(ThuNhap& thuNhap)
 {
-	SoTietKiem* s = new SoTietKiem;
 	cout << "Ban dang co: " << thuNhap.getQuyVoChong() << endl;
 	cout << "Ban muon gui bao nhieu tien? Hay nhap: ";
 	double tg;
 	cin >> tg;
 
-	while (s->tienGui > thuNhap.getQuyVoChong()) {
+	while (this->tienGui > thuNhap.getQuyVoChong()) {
 		cout << "So tien khong hop le. Hay nhap lai: ";
 		cin >> tg;
 	}
 	thuNhap.setQuyVoChong(thuNhap.getQuyVoChong() - tg);
 
 	this->setTienGui(tg);
-	s->ngayGui = thuNhap.getDate();
-	s->ngayDaoHan = thuNhap.getDate();
+	this->ngayGui = thuNhap.getDate();
+	this->ngayDaoHan = thuNhap.getDate();
 
 	cout << "Chon 6 thang hay 1 nam?" << endl;
 	cout << "	1. 6 thang, lai suat 6%/nam" << endl;
@@ -514,7 +615,7 @@ SoTietKiem* SoTietKiem::chon(ThuNhap& thuNhap)
 
 	this->setTienGui(this->tienGui * (1 + this->getLaiSuat() / 100));
 
-	return s;
+	return this;
 }
 
 void SoTietKiem::checkDaoHan(ThuNhap& thuNhap)
@@ -667,7 +768,6 @@ ostream& operator<<(ostream& out, const TienNo& n) {
 
 TienNo* TienNo::chon(ThuNhap& thuNhap)
 {
-	TienNo* n = new TienNo;
 	cout << "Ban co khoan no NH bao nhieu tien? Hay nhap: ";
 	double tno;
 	cin >> tno;
@@ -678,8 +778,8 @@ TienNo* TienNo::chon(ThuNhap& thuNhap)
 	cin >> ls;
 	this->setLaiSuat(ls);
 
-	n->ngayGui = thuNhap.getDate();
-	n->ngayDaoHan = thuNhap.getDate();
+	this->ngayGui = thuNhap.getDate();
+	this->ngayDaoHan = thuNhap.getDate();
 
 	int due;
 	cout << "Khoan no cua ban co han bao nhieu thang? Hay nhap: ";
@@ -697,7 +797,7 @@ TienNo* TienNo::chon(ThuNhap& thuNhap)
 		this->setNgayDaoHan(*temp);
 	}
 
-	return n;
+	return this;
 }
 
 void TienNo::checkDaoHan(ThuNhap& thuNhap)
